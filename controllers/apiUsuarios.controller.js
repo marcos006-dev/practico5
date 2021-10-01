@@ -1,4 +1,5 @@
 const Usuarios = require("../models/Usuarios.model");
+const bcrypt = require("bcryptjs");
 const ctrlApiUsuarios = {};
 
 // controlador para obtener a todos los usuarios
@@ -32,12 +33,15 @@ ctrlApiUsuarios.rutaPostApiUsuario = async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
+    const salt = bcrypt.genSaltSync(10);
+    const passwordEncriptado = bcrypt.hashSync(password, salt);
+    // console.log(passwordEncriptado);
     const nuevoUsuario = new Usuarios({
       email,
-      password,
+      password: passwordEncriptado,
       role,
     });
-
+    // nuevoUsuario.password = passwordEncriptado;
     await nuevoUsuario.save();
     res.status(200).json("Usuario creado correctamente");
   } catch (error) {
@@ -51,9 +55,11 @@ ctrlApiUsuarios.rutaPutApiUsuario = async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
+    const salt = bcrypt.genSaltSync(10);
+    const passwordEncriptadoEditar = bcrypt.hashSync(password, salt);
     await Usuarios.findByIdAndUpdate(id, {
       email,
-      password,
+      password: passwordEncriptadoEditar,
       role,
     });
 
